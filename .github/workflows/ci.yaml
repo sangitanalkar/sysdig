@@ -297,7 +297,7 @@ jobs:
       - name: Upload tar.gz package
         uses: actions/upload-artifact@v3
         with:
-          name: sysdig-dev-linux-aarch64.tar.gz
+          name: sysdig-dev-linux-s390x.tar.gz
           path: |
             ${{ github.workspace }}/sysdig-build-s390x/sysdig-*.tar.gz
 
