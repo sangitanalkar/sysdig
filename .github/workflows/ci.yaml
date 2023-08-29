@@ -183,7 +183,7 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         with:
-          platforms: 'amd64,arm64'
+          platforms: 'amd64,arm64,s390x'
       - name: Run the build skeleton process with Docker
         uses: addnab/docker-run-action@v3
         with:
