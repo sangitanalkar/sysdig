@@ -34,7 +34,7 @@ jobs:
         if: steps.builder-files.outputs.any_changed == 'true'
         uses: docker/setup-qemu-action@v2
         with:
-          platforms: 'amd64,arm64'
+          platforms: 'amd64,arm64,s390x'
 
       - name: Set up Docker Buildx
         if: steps.builder-files.outputs.any_changed == 'true'
@@ -67,7 +67,7 @@ jobs:
         with:
           context: docker/builder
           file:  docker/builder/modern_bpf_probe.Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64,linux/s390x
           tags: ${{ steps.get-new-skeleton-builder.outputs.skeleton_builder_image }}
           push: true
 
@@ -77,7 +77,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: docker/builder
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64,linux/s390x
           tags: ${{ steps.get-new-builder.outputs.builder_image }}
           push: true
 
@@ -183,7 +183,7 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         with:
-          platforms: 'amd64,arm64'
+          platforms: 'amd64,arm64,s390x'
       - name: Run the build skeleton process with Docker
         uses: addnab/docker-run-action@v3
         with:
@@ -228,6 +228,81 @@ jobs:
           path: |
             ${{ github.workspace }}/sysdig-build-aarch64/sysdig-*.tar.gz
 
+  build-sysdig-linux-s390x:
+    needs: builder
+    env:
+      REGISTRY: ghcr.io
+      BUILDER_IMAGE_BASE: ghcr.io/draios/sysdig-builder-pr
+      SKEL_BUILDER_IMAGE_BASE: ghcr.io/draios/sysdig-skel-builder-pr
+      BUILDER_DEV: ghcr.io/draios/sysdig-builder:dev
+      SKEL_BUILDER_DEV: ghcr.io/draios/sysdig-skel-builder:dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Sysdig
+        uses: actions/checkout@v3
+        with:
+          path: sysdig
+      - name: Create build dir
+        run: |
+          mkdir -p ${{ github.workspace }}/sysdig-build-s390x
+
+      - name: Login to Github Packages
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: 'amd64,s390x'
+      - name: Run the build skeleton process with Docker
+        uses: addnab/docker-run-action@v3
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          image: ${{ needs.builder.outputs.skeleton_builder_image }}
+          options: --platform=linux/s390x -v ${{ github.workspace }}/sysdig:/source/sysdig -v ${{ github.workspace }}/sysdig-build-s390x:/build/dev-packages -v ${{ github.workspace }}/skeleton-build:/build-skeleton
+          run: |
+            mkdir -p /build/dev-packages && \
+            build cmake-skeleton && \
+            build make-skeleton
+      - name: Run the build process with Docker
+        uses: addnab/docker-run-action@v3
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          image: ${{ needs.builder.outputs.builder_image }}
+          options: --platform=linux/s390x -v ${{ github.workspace }}/sysdig:/source/sysdig -v ${{ github.workspace }}/sysdig-build-s390x:/build/dev-packages -v ${{ github.workspace }}/skeleton-build:/build-skeleton
+          run: |
+            mkdir -p /build/dev-packages && \
+            build cmake && \
+            build package && \
+            cp /build/release/sysdig-* /build/dev-packages
+      - name: Upload deb package
+        uses: actions/upload-artifact@v3
+        with:
+          name: sysdig-dev-s390x.deb
+          path: |
+            ${{ github.workspace }}/sysdig-build-s390x/sysdig-*.deb
+      - name: Upload rpm package
+        uses: actions/upload-artifact@v3
+        with:
+          name: sysdig-dev-linux-s390x.rpm
+          path: |
+            ${{ github.workspace }}/sysdig-build-s390x/sysdig-*.rpm
+      - name: Upload tar.gz package
+        uses: actions/upload-artifact@v3
+        with:
+          name: sysdig-dev-linux-s390x.tar.gz
+          path: |
+            ${{ github.workspace }}/sysdig-build-s390x/sysdig-*.tar.gz
+
+  
+  
   build-sysdig-others-amd64:
     name: build-sysdig-other-amd64
     strategy:

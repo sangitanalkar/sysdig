@@ -18,12 +18,14 @@ jobs:
   build-drivers:
     strategy:
       matrix:
-        name: [amd64, arm64]
+        name: [amd64, arm64,s390x]
         include:
           - name: amd64
             arch: x86_64
           - name: arm64
             arch: aarch64
+          - name: s390x
+            arch: s390x
     runs-on: ubuntu-latest
     env:
       S3_BUCKET: download.draios.com
