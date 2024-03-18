@@ -304,12 +304,13 @@ jobs:
           sudo mkdir -p /lib/modules/$(uname -r)
           version=$(ls /usr/src/ | grep generic | tail -1)
           sudo ln -s /usr/src/$version /lib/modules/$(uname -r)/build
-          mkdir -p build
-          cd build && cmake -Wno-dev ..
-          cmake --build . --target package --config Release
+          mkdir -p /build/dev-packages && \
+          build cmake && \
+          build package && \
+          cp /build/release/sysdig-* /build/dev-packages
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: sysdig-dev-${{ matrix.artifact_name }}-arm64.${{ matrix.artifact_ext }}
+          name: sysdig-dev-${{ matrix.artifact_name }}-${{ matrix.artifact_ext }}
           path: |
-            build/sysdig-*.${{ matrix.artifact_ext }}  
+            build/dev-packages/sysdig-*.${{ matrix.artifact_ext }}  
