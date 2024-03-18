@@ -304,7 +304,7 @@ jobs:
           sudo mkdir -p /lib/modules/$(uname -r)
           version=$(ls /usr/src/ | grep generic | tail -1)
           sudo ln -s /usr/src/$version /lib/modules/$(uname -r)/build
-          mkdir -p build && \
+          mkdir -p build
           cd build && cmake ..
           make && sudo make install
       - name: Upload artifacts
@@ -312,4 +312,4 @@ jobs:
         with:
           name: sysdig-dev-${{ matrix.artifact_name }}-${{ matrix.artifact_ext }}
           path: |
-            build/dev-packages/sysdig-*.${{ matrix.artifact_ext }}  
+            build/sysdig-*.${{ matrix.artifact_ext }}  
