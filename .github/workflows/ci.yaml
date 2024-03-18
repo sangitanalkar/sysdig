@@ -304,10 +304,10 @@ jobs:
           sudo mkdir -p /lib/modules/$(uname -r)
           version=$(ls /usr/src/ | grep generic | tail -1)
           sudo ln -s /usr/src/$version /lib/modules/$(uname -r)/build
-          mkdir -p /build/dev-packages && \
+          mkdir -p build/dev-packages && \
           build cmake && \
           build package && \
-          cp /build/release/sysdig-* /build/dev-packages
+          cp build/release/sysdig-* build/dev-packages
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
