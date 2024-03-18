@@ -304,6 +304,7 @@ jobs:
           sudo mkdir -p /lib/modules/$(uname -r)
           version=$(ls /usr/src/ | grep generic | tail -1)
           sudo ln -s /usr/src/$version /lib/modules/$(uname -r)/build
+          sudo apt -get update && sudo apt-get install -y git g++ linux-headers-generic cmake libelf-dev pkg-config kmod
           mkdir -p build
           cd build && cmake ..
           make && sudo make install
