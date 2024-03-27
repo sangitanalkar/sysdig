@@ -306,7 +306,6 @@ jobs:
           sudo ln -s /usr/src/$version /lib/modules/$(uname -r)/build
           sudo apt-get update
           sudo apt-get install -y git g++ linux-headers-generic cmake libelf-dev pkg-config kmod
-          git checkout 0.34.1
           mkdir -p build
           cd build && cmake -DCREATE_TEST_TARGETS=ON -DUSE_BUNDLED_DEPS=ON -DSYSDIG_VERSION=0.34.1 ..
           make && sudo make install
