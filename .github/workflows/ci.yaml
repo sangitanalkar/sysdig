@@ -304,7 +304,8 @@ jobs:
           sudo mkdir -p /lib/modules/$(uname -r)
           version=$(ls /usr/src/ | grep generic | tail -1)
           sudo ln -s /usr/src/$version /lib/modules/$(uname -r)/build
-          sudo apt -get update && sudo apt-get install -y git g++ linux-headers-generic cmake libelf-dev pkg-config kmod
+          sudo apt -get update
+          sudo apt-get install -y git g++ linux-headers-generic cmake libelf-dev pkg-config kmod
           mkdir -p build
           cd build && cmake -DCREATE_TEST_TARGETS=ON -DUSE_BUNDLED_DEPS=ON ..
           make && sudo make install
